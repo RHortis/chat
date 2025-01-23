@@ -10,7 +10,7 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 
 # Define o arquivo CSV para armazenar as mensagens
-CHAT_FILE = "C:/Users/Public/Documents/chat.csv"
+CHAT_FILE = "chat.csv"
 
 # Inicializa o arquivo de chat se não existir
 try:
@@ -44,10 +44,10 @@ def handle_message(data):
     #aux_timestamp = aux_timestamp.replace("-","_")
     if  message.lower() == "clear":
         # Apaga o arquivo CSV
-        chat_file = "C:/Users/Public/Documents/chat.csv"
+        chat_file = "chat.csv"
         if os.path.exists(chat_file):
             #os.remove(chat_file)
-            novoNome = "C:/Users/Public/Documents/chat_temp_" + aux_timestamp + ".csv"
+            novoNome = "chat_temp_" + aux_timestamp + ".csv"
             os.rename(chat_file,novoNome)
             chat_data = pd.DataFrame(columns=["timestamp", "user", "message"])
             chat_data.to_csv(CHAT_FILE, index=False)
@@ -70,4 +70,4 @@ def handle_message(data):
     emit("receive_message", {"user": username, "message": message, "timestamp": timestamp}, broadcast=True)
 
 if __name__ == "__main__":
-    socketio.run(app, host="127.0.0.1", port=5371, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5371, debug=True)
