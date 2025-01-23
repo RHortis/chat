@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leviosaaa</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js">
+         // Escuta o evento 'reload_page' enviado pelo servidor
+         socket.on('reload_page', function(data) {
+            alert(data.message);  // Exibe a mensagem (opcional)
+            location.reload();    // Atualiza a página
+        });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chat-container {
+            position: absolute;
+            top: 70%;
+            width: 60%;
+            margin: 20px 0;
+        }
+        .message {
+            border-bottom: 1px solid #ccc;
+            padding: 10px;
+        }
+        .form-container {
+            position: absolute;
+            top: 60%;
+            left: 50%;  /* Centraliza horizontalmente */
+            transform: translate(-50%, -50%); /* Ajusta para garantir que o centro do contêiner seja a posição exata */
+            width: 60%;  /* Ocupa 60% da largura da tela */
+            height: auto; /* Ajusta a altura automaticamente */
+            display: flex;
+            flex-direction: row;  /* Para organizar os elementos em coluna */
+            justify-content: center;  /* Centraliza os itens verticalmente no contêiner */
+            margin-top: 10px;  /* Adiciona um pequeno espaço na parte superior */
+            z-index: 2;
+        }
+
+        /* Ajuste para telas pequenas (por exemplo, smartphones) */
+        @media (max-width: 600px) {
+            .form-container {
+                margin-top: 5px;  /* Ajuste o espaçamento se necessário */
+                top: 30%;
+                left: 50%;  /* Centraliza horizontalmente */
+                transform: translate(-50%, -50%); /* Ajusta para garantir que o centro do contêiner seja a posição exata */
+                width: 90%;  /* Ocupa 90% da largura da tela em dispositivos pequenos */
+                height: auto; /* Ajusta a altura automaticamente */
+                display: flex;
+                flex-direction: column;  /* Organiza os elementos em coluna */
+                justify-content: center;  /* Centraliza os itens verticalmente no contêiner */
+                position: absolute;
+                gap: 10px;  /* Espaço de 10px entre cada item (input, button, etc.) */
+                z-index: 2;
+            }
+            button {
+                background-color: rgb(47, 158, 231);
+                border-radius: 5rem;
+                border-width: 0.1rem;
+                width: 50%;
+                color: aliceblue;
+                font-family: Calibri;
+                box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3); /* Ajuste os valores conforme necessário */     
+                margin: 0 auto;  /* Centraliza horizontalmente */
+            }
+            .logo-image {
+                position: absolute; /* A imagem ficará posicionada em relação ao seu contêiner */
+                top: 0rem;
+                left: 50%;  /* Centraliza a imagem horizontalmente */
+                transform: translateX(-50%); /* Ajuste para centralizar a imagem exata */
+                width: 50vw;  /* Aumenta o tamanho da imagem para 50% da largura da tela */
+                height: auto; /* Mantém a proporção da imagem */
+                z-index: 1; /* A imagem ficará atrás do bate-papo */
+            }
+            .chat-container {
+                position: absolute;
+                top: 45%;
+                left: 0%;
+                width: 60%;
+                margin: 20px 0;
+            }
+        }
+
+        /* Ajuste para telas médias (por exemplo, tablets) */
+        @media (min-width: 600px) and (max-width: 1024px) {
+            .form-container {
+                width: 80%;  /* Ocupa 80% da largura da tela em dispositivos intermediários */
+            }
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            
+        }
+        button{
+            background-color:rgb(47, 158, 231);
+            border-radius: 5rem;
+            border-width: 0.1rem;
+            color: aliceblue;
+            font-family: Calibri;
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3); /* Ajuste os valores conforme necessário */     
+        }
+        input {
+            flex: 1;
+            margin-right: 10px;
+            border-radius: 5rem;
+            border-width: 0.1rem;
+            font-family: Calibri;
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3); /* Ajuste os valores conforme necessário */     
+        }
+        .logo-image {
+            position: absolute; /* A imagem ficará posicionada em relação ao seu contêiner */
+            top: 0rem;
+            left: 50%;  /* Usar 50% para centralizar a imagem horizontalmente */
+            transform: translateX(-50%); /* Ajuste para centralizar a imagem exata, já que left 50% coloca o canto esquerdo no centro */
+            width: 25vw;  /* Tamanho da imagem ajustado para 25% da largura da tela */
+            height: auto; /* Mantém a proporção da imagem */
+            z-index: 1; /* A imagem ficará atrás do bate-papo */
+        }
+
+        
+    </style>
+</head>
+<body>
+    
+    
+    <img src="{{ url_for('static', filename='logo_leviosaaa.png') }}" alt="Logo" class="logo-image">
+    
+    
+    <div class="form-container">
+        <input type="text" id="username" placeholder="Seu nome" />
+        <input type="text" id="message" placeholder="Digite sua mensagem" />
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+    <div class="chat-container" id="chat">
+        {% for msg in chat_data %}
+        <div class="message">
+            <strong>{{ msg.user }}</strong> ({{ msg.timestamp }}): {{ msg.message }}
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        const socket = io();
+
+        function sendMessage() {
+            const user = document.getElementById("username").value;
+            const message = document.getElementById("message").value;
+            
+            if (user && message) {
+                socket.emit("send_message", { user, message });
+                document.getElementById("message").value = "";
+            }
+            
+        }
+
+        socket.on("receive_message", (data) => {
+            if(data.message=="Clear" || data.message=="clear")
+                location.reload()
+            
+            const chat = document.getElementById("chat");
+            const newMessage = document.createElement("div");
+            newMessage.classList.add("message");
+            newMessage.innerHTML = `<strong>${data.user}</strong> (${data.timestamp}): ${data.message}`;
+            chat.appendChild(newMessage);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat em Equipe</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js">
+         // Escuta o evento 'reload_page' enviado pelo servidor
+         socket.on('reload_page', function(data) {
+            alert(data.message);  // Exibe a mensagem (opcional)
+            location.reload();    // Atualiza a página
+        });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chat-container {
+            position: absolute;
+            top: 450px;
+            width: 60%;
+            margin: 20px 0;
+        }
+        .message {
+            border-bottom: 1px solid #ccc;
+            padding: 10px;
+        }
+        .form-container {
+            position: absolute;
+            top: 370px;
+            width: 60%;
+            display: flex;
+            margin-top: 10px;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            
+        }
+        button{
+            background-color:rgb(47, 158, 231);
+            border-radius: 5rem;
+            border-width: 0.1rem;
+            color: aliceblue;
+            font-family: Calibri;
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3); /* Ajuste os valores conforme necessário */     
+        }
+        input {
+            flex: 1;
+            margin-right: 10px;
+            border-radius: 5rem;
+            border-width: 0.1rem;
+            font-family: Calibri;
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3); /* Ajuste os valores conforme necessário */     
+        }
+        .logo-image {
+            position: absolute; /* A imagem ficará posicionada em relação ao seu contêiner */
+            margin-top: 100px;
+            left: 380px;
+            width: 50%; /* Ajuste o tamanho conforme necessário */
+            height: auto;
+            z-index: 1; /* A imagem ficará atrás do bate-papo */
+        }
+
+        .chat-image {
+            position: absolute; /* Posiciona a imagem no topo, mas na frente */
+            top: 235px; /* Ajuste a posição conforme necessário */
+            left: 1160px; /* Ajuste a posição conforme necessário */
+            width: 5%; /* Ajuste o tamanho conforme necessário */
+            z-index: 2; /* A imagem ficará na frente da outra */
+            border-radius: 50%;
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3); /* Ajuste os valores conforme necessário */     
+        }
+    </style>
+</head>
+<body>
+    
+    
+    <div class="form-container">
+        <input type="text" id="username" placeholder="Seu nome" />
+        <input type="text" id="message" placeholder="Digite sua mensagem" />
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+    <div class="chat-container" id="chat">
+        {% for msg in chat_data %}
+        <div class="message">
+            <strong>{{ msg.user }}</strong> ({{ msg.timestamp }}): {{ msg.message }}
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        const socket = io();
+
+        function sendMessage() {
+            const user = document.getElementById("username").value;
+            const message = document.getElementById("message").value;
+            
+            if (user && message) {
+                socket.emit("send_message", { user, message });
+                document.getElementById("message").value = "";
+            }
+            
+        }
+
+        socket.on("receive_message", (data) => {
+            if(data.message=="Clear" || data.message=="clear")
+                location.reload()
+            
+            const chat = document.getElementById("chat");
+            const newMessage = document.createElement("div");
+            newMessage.classList.add("message");
+            newMessage.innerHTML = `<strong>${data.user}</strong> (${data.timestamp}): ${data.message}`;
+            chat.appendChild(newMessage);
+        });
+    </script>
+</body>
+</html>
