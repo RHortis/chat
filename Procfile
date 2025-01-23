@@ -1,1 +1,1 @@
-﻿web: gunicorn app_hortis:app
+gunicorn app_hortis:app
