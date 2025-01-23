@@ -1,5 +1,5 @@
-flask==2.0.1
-flask-socketio==5.0.1
+flask==2.1.1  # Última versão estável
+flask-socketio==5.2.0  # Atualizado
 gunicorn==20.1.0
-pandas==1.3.3
-numpy==1.21.0
+pandas==1.4.2
+eventlet==0.33.0
